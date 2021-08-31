@@ -12,6 +12,7 @@ const db = require("./conexion");
 const server = express();
 
 ////MIDDLEWARES DEFINITIONS
+
 const logger = (req, res, next) => {
     const path = req.path;
     const method = req.method;
@@ -26,6 +27,13 @@ const logger = (req, res, next) => {
     next();
 };
 
+const searchUserInDb = async (user) => {
+    const arrayOfArrays = await db.query(`SELECT * FROM usuarios WHERE 
+        usuario ='${user.usuario}' or email ='${user.email}';`);
+        const arrayUserInDb = await arrayOfArrays[0];
+        return arrayUserInDb[0]; 
+}
+
 const signInValidation = async (req, res, next) => {
     const posibleUsuario = {
         usuario,
@@ -37,9 +45,7 @@ const signInValidation = async (req, res, next) => {
     } = req.body;
     
     try {
-        const arrayOfArrays = await db.query(`SELECT * FROM usuarios WHERE 
-        usuario ='${posibleUsuario.usuario}' or email ='${posibleUsuario.email}';`);
-        const arrayUserInDb = await arrayOfArrays[0];
+        const userInDb = await searchUserInDb(posibleUsuario);
         if (
             posibleUsuario.usuario == null || posibleUsuario.usuario == "" ||
             posibleUsuario.nombre == null || posibleUsuario.nombre == "" ||
@@ -49,19 +55,17 @@ const signInValidation = async (req, res, next) => {
             posibleUsuario.telefono == null || posibleUsuario.telefono == "" 
         ){
             res.status(400).json({error: `Debe completar todos los campos. Inténtelo nuevamente.`});
-        } else if (arrayUserInDb[0]) {
-            res.status(400).json("El usuario o email ingresado no está disponible. Intente nuevamente."); 
-            /* res.status(400).json(arrayOfArrays); */
+        } else if (userInDb) {
+            res.status(400).json(userInDb); 
         }else{
             next();
         }
     } catch (error) {
         console.log(error.message);
     }
-
 }
 
-////////////////* VALIDACION FRONT-END validar si existe un usuario con ese mail y contrasena. Si existe error y si no next  */////////////
+
 
 //LIMIT POLITICS: login
 const limiter = rateLimit({
