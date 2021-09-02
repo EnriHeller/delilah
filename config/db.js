@@ -2,14 +2,14 @@ const Sequelize = require("sequelize");
 
 //XAMMP
 
-const user = "root";
-const host = "localhost";
-const port = "3306";
-const dbName = "delilahresto";
+//TODOS ESTOS DATOS PUEDEN CAMBIAR DE AMBIENTE, ESTAS SON VARIABLES DE ENTORNO/AMBIENTE. ESTO SE ARREGLA CON DOTENV
+const {user,host,port,dbName} = process.env;
 
 const conString = `mysql://${user}@${host}:${port}/${dbName}`;
 
-const sequelizeObject = new Sequelize(conString);
+const sequelizeObject = new Sequelize(conString, {
+    operatorsAliases: false,
+});
 
 sequelizeObject
 .authenticate()

@@ -6,7 +6,12 @@ const compression = require("compression");
 const rateLimit = require("express-rate-limit");
 const jwt = require("jsonwebtoken");
 const expressJwt = require("express-jwt");
-const db = require("./conexion");
+const db = require("./config/db");
+const Usuarios = require("./models/usuarios");
+
+////CONSTANTS
+const PORT = 3000;
+const JWT_SECRET = "834e9t8-34GGrSs48(#7RFHYGF-874j761!78-gjhgasfifkgYGU-kuyhgKHG";
 
 //INSTANCES
 const server = express();
@@ -27,12 +32,6 @@ const logger = (req, res, next) => {
     next();
 };
 
-const searchUserInDb = async (user) => {
-    const arrayOfArrays = await db.query(`SELECT * FROM usuarios WHERE 
-        usuario ='${user.usuario}' or email ='${user.email}';`);
-        const arrayUserInDb = await arrayOfArrays[0];
-        return arrayUserInDb[0]; 
-}
 
 const signInValidation = async (req, res, next) => {
     const posibleUsuario = {
@@ -45,7 +44,9 @@ const signInValidation = async (req, res, next) => {
     } = req.body;
     
     try {
-        const userInDb = await searchUserInDb(posibleUsuario);
+        const arrayOfArrays = await db.query(`SELECT * FROM usuarios WHERE 
+        usuario ='${posibleUsuario.usuario}' or email ='${posibleUsuario.email}';`);
+        const arrayUserInDb = await arrayOfArrays[0];
         if (
             posibleUsuario.usuario == null || posibleUsuario.usuario == "" ||
             posibleUsuario.nombre == null || posibleUsuario.nombre == "" ||
@@ -54,22 +55,23 @@ const signInValidation = async (req, res, next) => {
             posibleUsuario.direccion == null || posibleUsuario.direccion == "" ||
             posibleUsuario.telefono == null || posibleUsuario.telefono == "" 
         ){
-            res.status(400).json({error: `Debe completar todos los campos. Inténtelo nuevamente.`});
-        } else if (userInDb) {
-            res.status(400).json(userInDb); 
+            res.status(400);
+            throw new Error(`Debe completar todos los campos. Inténtelo nuevamente.`)
+        } else if (arrayUserInDb[0]) {
+            res.status(400);
+            throw new Error("El usuario o email ingresado no está disponible. Intente nuevamente.");
+            /* res.status(400).json(arrayOfArrays); */
         }else{
             next();
         }
     } catch (error) {
-        console.log(error.message);
+        res.json(error.message);
     }
 }
 
-
-
 //LIMIT POLITICS: login
 const limiter = rateLimit({
-    windowMs: 5 * 60 * 1000,
+    windowMs: 60 * 1000, //60 segundos
     max: 5,
     message: "Excediste el numero de peticiones intenta mas tarde",
 });
@@ -80,12 +82,16 @@ server.use(express.json());
 server.use(cors());
 server.use(helmet());
 server.use(compression());
+server.use(
+    expressJwt({
+        secret: JWT_SECRET,
+        algorithms: ["HS256"],
+    }).unless({
+        path: ["/logIn", "/signIn"],
+    })
+);
+///////////* MIDDLEWARE QUE VALIDE SI HAY UN TOKEN QUE TENGA LOS DATOS DEL USUARIO QUE HIZO EL LOGIN. (todos los endpoints menos login y sign) *////
 
-///////////* MIDDLEWARE QUE VALIDE SI HAY UN TOKEN QUE TENGA LOS DATOS DEL USUARIO QUE HIZO EL LOGIN. (todos los endpoints menos login y sign) *////////////
-
-////CONSTANTS
-const PORT = 3000;
-const JWT_SECRET = "834e9t8-34GGrSs48(#7RFHYGF-874j761!78-gjhgasfifkgYGU-kuyhgKHG";
 
 ////ENDPOINTS
 
@@ -101,8 +107,8 @@ server.get("/usuarios", async (req, res) => {
 
 server.post("/signIn",signInValidation, async (req, res)=>{
     const usuario = req.body.usuario;
-    const nombre = req.body.nombre;
     const email = req.body.email;
+    const nombre = req.body.nombre;
     const contrasena = req.body.contrasena;
     const direccion = req.body.direccion;
     const telefono = req.body.telefono;
@@ -113,11 +119,40 @@ server.post("/signIn",signInValidation, async (req, res)=>{
         res.status(200);
         res.json("Se ha registrado correctamente.");
     }catch(error){
-        console.error(error.message);
+        res.status(400);
+        res.json(error.message);
+    }
+});
+
+server.post("/logIn",limiter, async(req, res) =>{
+    const email = req.body.email;
+    const contrasena = req.body.contrasena;
+    try {
+        const arrayUserInDb = await db.query(`SELECT * FROM usuarios WHERE email = '${email}' and contrasena = '${contrasena}';`, {type: db.QueryTypes.SELECT});
+
+        const userInDb = await arrayUserInDb[0];
+
+        if(userInDb){
+            const token = jwt.sign(
+                {
+                    id: userInDb.id,
+                    usuario: userInDb.usuario,
+                },
+                JWT_SECRET,
+                {expiresIn: "24h"}
+            );
+
+            res.status(200);
+            res.json(token);
+        }else{
+            res.status(401);
+            res.json("Email o contraseña invalidos. Intente nuevamente");
+        }
+    } catch (error) {
+        res.status(400);
+        res.json(error.message);
     }
 })
-
-
 
 
 //SERVER PORT LISTENER
