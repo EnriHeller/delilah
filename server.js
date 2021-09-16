@@ -23,7 +23,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const server = express();
 
 ////MIDDLEWARES DEFINITIONS
-
 const logger = (req, res, next) => {
     const path = req.path;
     const method = req.method;
@@ -34,11 +33,10 @@ const logger = (req, res, next) => {
     ${method} -
     ${path} -
     ${JSON.stringify(body)} -
-    ${JSON.stringify(params)}`);
+    ${JSON.stringify(params)}`); 
     next();
-};
+}; 
 
-//Repensar 
 const signInValidation = async (req, res, next) => {
     const posibleUsuario = {
         usuario,
@@ -49,33 +47,40 @@ const signInValidation = async (req, res, next) => {
         telefono,
     } = req.body;
     
-    try {
-        const arrayOfArrays = await db.query(`SELECT * FROM usuarios WHERE 
-        usuario ='${posibleUsuario.usuario}' or correo ='${posibleUsuario.correo}';`);
-        const arrayUserInDb = await arrayOfArrays[0];
-        if (
-            posibleUsuario.usuario == null || posibleUsuario.usuario == "" ||
-            posibleUsuario.nombre == null || posibleUsuario.nombre == "" ||
-            posibleUsuario.correo == null || posibleUsuario.correo == "" ||
-            posibleUsuario.contrasena == null || posibleUsuario.contrasena == "" ||
-            posibleUsuario.direccion == null || posibleUsuario.direccion == "" ||
-            posibleUsuario.telefono == null || posibleUsuario.telefono == "" 
-        ){
-            res.status(400);
-            throw new Error(`Debe completar todos los campos. Inténtelo nuevamente.`)
-        } else if (arrayUserInDb[0]) {
-            res.status(400);
-            throw new Error("El usuario o correo ingresado no está disponible. Intente nuevamente.");
-            /* res.status(400).json(arrayOfArrays); */
-        }else{
-            next();
-        }
-    } catch (error) {
-        res.json(error.message);
+    const userInDb = await Usuarios.findOne({
+        attributes: ["usuario", "correo"],
+        $or: [{usuario: posibleUsuario.usuario},{correo: posibleUsuario.correo}]
+    })
+
+    if(userInDb.correo == posibleUsuario.correo){
+        res.status(401);
+        res.json({error: "El correo electronico ingresado no se encuentra disponible"})
+    }else if(userInDb.usuario == posibleUsuario.usuario){
+        res.status(401);
+        res.json({error: "El usuario ingresado no se encuentra disponible"})
+    }else{
+        next()
     }
 }
 
-//LIMIT POLITICS: login
+const adminValidation = async (req, res, next)=>{
+    try {
+        const comprobation = await Usuarios.findOne({
+            where: {id: req.user.id, esAdmin: true}
+        });
+    
+        if(comprobation){
+            next();
+        }else{
+            res.status(401);
+            res.json({error: "Acceso denegado"});
+        }
+        
+    } catch (error) {
+        res.status(500).json({error: "Error, intentelo de nuevo más tarde"});
+    }
+}
+
 const limiter = rateLimit({
     windowMs: 60 * 1000, //60 segundos
     max: 5,
@@ -84,7 +89,7 @@ const limiter = rateLimit({
 
 ////GlOBAL MIDDLEWARES
 server.use(express.json());
-server.use(logger); 
+/* server.use(logger);  */
 server.use(cors());
 server.use(helmet());
 server.use(compression());
@@ -96,15 +101,11 @@ server.use(
     }).unless({
         path: ["/logIn", "/signIn"],
     })
-); 
-
-
-
+);  
 
 ////ENDPOINTS
 
-server.post("/signIn", async (req, res)=>{
-    
+server.post("/signIn",signInValidation, async (req, res)=>{
     const newUser = {nombre, usuario, correo, telefono, direccion, contrasena} = req.body;
     
     Usuarios.create(newUser)
@@ -118,42 +119,45 @@ server.post("/signIn", async (req, res)=>{
         }));
 });
 
+//CREAR PEDIDO
+server.post("/pedido", async(req,res)=>{
+    const nuevoPedido = {platoId, cantidad} = req.body;
+    const token = req.headers.authorization.split(" ")[1];
+    const user = jwt.verify(token, JWT_SECRET);
+});
+
 server.post("/logIn",limiter, async(req, res) =>{
     const {posibleCorreo, posibleContrasena} = req.body;
 
     try {
         const posibleUsuario = await Usuarios.findOne({
-            attributes: ["correo", "contrasena", "id", "usuario"],
             where: {correo: posibleCorreo, contrasena: posibleContrasena}
         });
 
         if(posibleUsuario){
             const token = jwt.sign(
-                {id: posibleUsuario.id, usuario: posibleUsuario.usuario,},
+                {id: posibleUsuario.id},
                 JWT_SECRET,
                 {expiresIn: "24h"}
             );
-            res.status(200);
-            res.json(token);
+            res.status(200).json(token);
         }else{
-            res.status(401);
-            res.json("correo o contraseña invalidos. Intente nuevamente");
+            res.status(401).json("correo o contraseña invalidos. Intente nuevamente");
         }
     } catch (error) {
-        res.status(400);
+        res.status(500);
         res.json(error.message);
     }
 })
 
-//OBTENER USUARIOS
-server.get("/usuarios", async (req, res) => {
+//OBTENER TODOS LOS USUARIOS
+server.get("/usuarios",adminValidation, async (req, res) => {
     const usuarios = await Usuarios.findAll()
     res.json(usuarios);
     res.status(200);
 });
 
-
-//OBTENER PLATOS POR ID
+//OBTENER PLATO POR ID
 server.get("/platos/:id", async(req,res)=>{
     const idParam = req.params.id;
     const plato =  await Platos.findOne({
@@ -163,16 +167,53 @@ server.get("/platos/:id", async(req,res)=>{
     plato ? res.json(plato):res.status(400).json({error:`No existe el plato con el id ${idParam}`});
 });
 
-//OBTENER PEDIDOS
-server.get("/pedidos", async (req, res) => {
-  const pedidos = await Pedidos.findAll({
+//OBTENER TODOS LOS PEDIDOS
+server.get("/pedidos", adminValidation, async (req, res) => {
+    const pedidos = await Pedidos.findAll({
     include: [
-      { model: Usuarios, attributes: ["id", "nombre", "correo"] },
-      { model: Platos },
+        { model: Usuarios, attributes: ["id", "nombre", "correo", "telefono", "direccion"] },
+        { model: Platos },
     ],
-  });
-  res.json(pedidos);
+    });
+    res.json(pedidos);
 });
+
+//OBTENER PEDIDO POR ID
+server.get("/pedidos/:id", adminValidation, async (req, res) => {
+    idParam = req.params.id;
+    const pedido = await Pedidos.findOne({
+    include: [
+        { model: Usuarios, attributes: ["id", "nombre", "correo", "telefono", "direccion"] },
+        { model: Platos },
+    ],
+    where: {id: idParam}
+    });
+    pedido ? res.json(pedido):res.status(400).json({error:`No existe el pedido con el id ${idParam}`});
+});
+
+
+
+
+
+/* 
+//CAMBIAR ESTADO DEL PEDIDO
+server.put("/estadopedido/:idPedido/:estado", adminValidation, async (req, res) => {
+    const idPedido = req.params.id;
+    const nuevoEstado = req.params.estado;
+    try {
+        const pedido = await Pedidos.findOne({
+            where: {id: idPedido}
+        });
+        if(pedido){
+            res.status(200).json(pedido);
+        }else{
+            throw new Error("No existe un pedido con el ID especificado")
+        }
+    } catch (error) {
+        res.status(400).json(error.message);
+    }
+}) */
+
 
 //SERVER PORT LISTENER
 server.listen(PORT, () => {

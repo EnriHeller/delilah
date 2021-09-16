@@ -1,4 +1,4 @@
-const Pedidos = require("./pedidos");
+const {Pedidos}= require("./pedidos");
 const PedidosHasPlatos = require("./pedidosHasPlatos");
 const Platos = require("./platos");
 const Usuarios = require("./usuarios");

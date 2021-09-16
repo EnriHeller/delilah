@@ -1,6 +1,13 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-
+const estados = [
+    "NUEVO",
+    "CONFIRMADO",
+    "PREPARANDO",
+    "ENVIANDO",
+    "CANCELADO",
+    "ENTREGADO"];
+    
 const Pedidos = sequelize.define(
 "pedidos",
 {
@@ -9,14 +16,7 @@ const Pedidos = sequelize.define(
     allowNull: false,
     },
     estado: {
-    type: DataTypes.ENUM(
-        "NUEVO",
-        "CONFIRMADO",
-        "PREPARANDO",
-        "ENVIANDO",
-        "CANCELADO",
-        "ENTREGADO"
-    ),
+    type: DataTypes.ENUM(...estados),
     defaultValue: "NUEVO",
     allowNull: false,
     },
@@ -31,4 +31,4 @@ const Pedidos = sequelize.define(
 }
 );
 
-module.exports = Pedidos;
+module.exports = {Pedidos,estados};
