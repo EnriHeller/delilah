@@ -9,19 +9,19 @@ const PedidosHasPlatos = sequelize.define("pedidos_has_platos", {
         allowNull:false,
     },
 
-    pedido_id : {
+    pedidos_id : {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: "pedido_id",
+        field: `pedidos_id`,
         references:{
             model: Pedidos,
             key: "id",
         },
     },
-    plato_id: {
+    platos_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        field: "plato_id",
+        field: "platos_id",
         references: {
             model: Platos,
             key: "id",
@@ -34,5 +34,13 @@ const PedidosHasPlatos = sequelize.define("pedidos_has_platos", {
     timestamps: false,
 }
 );
+
+/* sequelize 
+.sync({ force: true })
+.then(function(err) {
+    console.log('It worked!');
+  }, function (err) { 
+         console.log('An error occurred while creating the table:', err);
+  }); */
 
 module.exports = PedidosHasPlatos;

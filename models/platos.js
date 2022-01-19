@@ -13,6 +13,7 @@ const Platos = sequelize.define("platos", {
     active: { 
         type: DataTypes.BOOLEAN,
         allowNull: false,
+        defaultValue: true
     },
     imagen: { 
         type: DataTypes.STRING,

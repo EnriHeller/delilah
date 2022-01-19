@@ -7,7 +7,7 @@ const estados = [
     "ENVIANDO",
     "CANCELADO",
     "ENTREGADO"];
-    
+
 const Pedidos = sequelize.define(
 "pedidos",
 {
