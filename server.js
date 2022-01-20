@@ -228,20 +228,22 @@ server.get("/pedidos", adminValidation, async (req, res) => {
 //OBTENER PEDIDOS DE USUARIO LOGEADO
 server.get("/pedidosUsuario", async (req, res) => {
     try {
-        const pedidos = await Pedidos.findAll({
-            where: {id: req.user.id},
-            include: [
-                { model: Usuarios, attributes: ["id", "nombre", "correo", "telefono", "direccion"] },
+        const pedidosUser = await Pedidos.findAll({
+            /* include: [
+                { model: Usuarios, attributes: ["id", "nombre", "correo"] },
                 { model: Platos },
-            ],
+            ], */
+            where: {usuarios_id: req.user.id},
         });
+        console.log(`el objeto es: ${pedidosUser}`)
+        res.status(200).json(pedidosUser);
     
-        res.status(200).json(pedidos);
     } catch (error) {
         res.status(400).json(error.message);
         
     }
 });
+
 
 //OBTENER PEDIDO POR ID
 server.get("/pedidos/:id", adminValidation, async (req, res) => {
@@ -289,17 +291,17 @@ server.post("/pedidos", async(req,res)=>{
     });
 
     
-await Promise.all(
+    await Promise.all(
     dataPlatos.map(async (plato) => {
         
         await PedidosHasPlatos.create(
             {
                 cantidad: plato.cantidad,
-                platos_id: plato.plato_id,
-                pedidos_id: nuevoPedido.id,
+                plato_id: plato.plato_id,
+                pedido_id: nuevoPedido.id,
             },
             {
-                fields: ["cantidad", "platos_id", "pedidos_id"],
+                fields: ["cantidad", "plato_id", "pedido_id"],
             }
         )
     ;
@@ -351,7 +353,7 @@ server.delete("/pedidos/:id",adminValidation, async (req,res) =>{
 
         await PedidosHasPlatos.destroy({
             where: {
-                pedidos_id: idPedido,
+                pedido_id: idPedido,
             }
         });
 
