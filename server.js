@@ -52,7 +52,6 @@ const signInValidation = async (req, res, next) => {
         attributes: ["usuario", "correo"],
         $or: [{usuario: posibleUsuario.usuario},{correo: posibleUsuario.correo}]
     })
-
     if(userInDb){
         if(userInDb.correo == posibleUsuario.correo){
             res.status(401);
@@ -60,13 +59,13 @@ const signInValidation = async (req, res, next) => {
         }else if(userInDb.usuario == posibleUsuario.usuario){
             res.status(401);
             res.json({error: "El usuario ingresado no se encuentra disponible"})
-        }
-        else{
+        }else{
             next()
         }
     }else{
         next()
     }
+    
 }
 
 const adminValidation = async (req, res, next)=>{
@@ -95,7 +94,7 @@ const limiter = rateLimit({
 
 ////GlOBAL MIDDLEWARES
 server.use(express.json());
-//server.use(logger); 
+/* server.use(logger);  */
 server.use(cors());
 server.use(helmet());
 server.use(compression());
@@ -189,7 +188,7 @@ server.post("/platos", adminValidation, async(req,res)=>{
     }
 })
 
-//BORRAR UN PLATO ("desactivarlo")
+//DESACTIVAR UN PLATO
 server.delete("/platos/:id", async(req,res)=>{
     idPlato = req.params.id;
     try {
@@ -202,9 +201,9 @@ server.delete("/platos/:id", async(req,res)=>{
 });
 
 //MODIFICAR UN PLATO
-server.put("/platos/:id", adminValidation, async(req,res)=>{
+server.put("/platos/:id", async(req,res)=>{
     idPlato = req.params.id;
-    const {nombre,precio, imagen} = req.body;
+    const {nombre, precio, imagen} = req.body;
     try {
         await Platos.update({nombre, precio, imagen}, {where:{id: idPlato}});
         const plato = await Platos.findOne({where: {id: idPlato}});
@@ -212,6 +211,7 @@ server.put("/platos/:id", adminValidation, async(req,res)=>{
     } catch (error) {
         res.status(400).json({error: error.message})
     }
+
 })
 
 //OBTENER TODOS LOS PEDIDOS
@@ -229,21 +229,18 @@ server.get("/pedidos", adminValidation, async (req, res) => {
 server.get("/pedidosUsuario", async (req, res) => {
     try {
         const pedidosUser = await Pedidos.findAll({
-            /* include: [
+            include: [
                 { model: Usuarios, attributes: ["id", "nombre", "correo"] },
                 { model: Platos },
-            ], */
+            ],
             where: {usuarios_id: req.user.id},
         });
-        console.log(`el objeto es: ${pedidosUser}`)
         res.status(200).json(pedidosUser);
     
     } catch (error) {
         res.status(400).json(error.message);
-        
     }
 });
-
 
 //OBTENER PEDIDO POR ID
 server.get("/pedidos/:id", adminValidation, async (req, res) => {
@@ -262,7 +259,6 @@ server.get("/pedidos/:id", adminValidation, async (req, res) => {
 server.post("/pedidos", async(req,res)=>{
     try {
     const {forma_pago, platos} = req.body;
-
     const dataPlatos = await Promise.all(
         platos.map(async (plato)=>{
         const platoDB = await Platos.findOne({
@@ -270,18 +266,17 @@ server.post("/pedidos", async(req,res)=>{
                 id: plato.platoId,
             }
         });
-        
+
         return {
             cantidad: plato.cantidad,
-            plato_id: plato.platoId,
+            id: plato.platoId,
             precio: platoDB.precio,
         };
     }))
 
-    let precio_total = 0;
-    dataPlatos.forEach((producto) => {
-      precio_total = precio_total + producto.precio * producto.cantidad;
-    });
+    const precio_total = dataPlatos.reduce((acc, dataPlato)=>{
+        return (acc + dataPlato.precio * dataPlato.cantidad)
+    }, 0); 
 
 
     const nuevoPedido = await Pedidos.create({
@@ -291,21 +286,18 @@ server.post("/pedidos", async(req,res)=>{
     });
 
     
-    await Promise.all(
+await Promise.all(
     dataPlatos.map(async (plato) => {
-        
-        await PedidosHasPlatos.create(
-            {
-                cantidad: plato.cantidad,
-                plato_id: plato.plato_id,
-                pedido_id: nuevoPedido.id,
-            },
-            {
-                fields: ["cantidad", "plato_id", "pedido_id"],
-            }
-        )
-    ;
-
+    await PedidosHasPlatos.create(
+        {
+            cantidad: plato.cantidad,
+            plato_id: plato.id,
+            pedido_id: nuevoPedido.id,
+        },
+        {
+            fields: ["cantidad", "plato_id", "pedido_id"],
+        }
+    );
 }));
 
     res.status(201).json(nuevoPedido);
@@ -364,7 +356,41 @@ server.delete("/pedidos/:id",adminValidation, async (req,res) =>{
         }); 
     } 
 
-    res.status(204).json("El pedido fue eliminado");
+    res.json("El pedido fue eliminado");
+});
+
+//ELIMINAR PEDIDO DE USUARIO LOGEADO
+server.delete("/pedidosUsuario/:id", async (req,res) =>{
+    const idPedido = req.params.id;
+    
+    const posiblePedido = await Pedidos.findOne({
+        where: {
+            id:idPedido,
+            usuarios_id: req.user.id
+        }
+    })
+
+    if(!posiblePedido || posiblePedido == null){
+        res.status(400)
+        res.json({
+            error: `No existe pedido con id ${idPedido} que sea del usuario logeado`
+        });
+    }else{  
+
+        await PedidosHasPlatos.destroy({
+            where: {
+                pedido_id: idPedido,
+            }
+        });
+
+        await Pedidos.destroy({
+            where: {
+                id: idPedido,
+            }
+        }); 
+    } 
+
+    res.json("El pedido fue eliminado");
 });
 
 
