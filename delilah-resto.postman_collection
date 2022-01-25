@@ -6,35 +6,6 @@
 	},
 	"item": [
 		{
-			"name": "get todos los usuarios",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxMGVhM2QzNDQzM2ZmMzQ4MGU5MjE5OCIsIm5vbWJyZSI6IkVucmlxdWUiLCJjb3JyZW8iOiJlbnJpcXVlLmhlbGxlckBob3RtYWlsLmNvbSIsImxvcXVlcXVpZXJhbiI6ImxvcXVlc2VhIiwiaWF0IjoxNjI4MzUwNTMyLCJleHAiOjE2MjgzNTQxMzJ9.4PmY66rOpcG_NmsoogCerYH331KYDX0EbU1VIUZm3Xo",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3000/usuarios",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"usuarios"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "sign in",
 			"request": {
 				"method": "POST",
@@ -69,7 +40,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"posibleCorreo\": \"carlosalonso@gmail.com\",\r\n    \"posibleContrasena\": \"golalos90\"\r\n}",
+					"raw": "{\r\n    \"posibleCorreo\": \"fabriciobustos@gmail.com\",\r\n    \"posibleContrasena\": \"golalos90\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -91,90 +62,72 @@
 			"response": []
 		},
 		{
-			"name": "get plato por id",
+			"name": "Obtener todos los platos",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQzMTQ1NTgxLCJleHAiOjE2NDMyMzE5ODF9.OnhofZmBvrgyL-vRKXP22CtifGsOcpf5diqo9psjIb0",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:3000/platos/5",
+					"raw": "http://localhost:3000/platos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"platos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener plato por id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQzMTQ1NTgxLCJleHAiOjE2NDMyMzE5ODF9.OnhofZmBvrgyL-vRKXP22CtifGsOcpf5diqo9psjIb0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/platos/6",
 					"host": [
 						"localhost"
 					],
 					"port": "3000",
 					"path": [
 						"platos",
-						"5"
+						"6"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "get todos los pedidos",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3000/pedidos",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"pedidos"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Post nuevo pedido",
+			"name": "Crear nuevo plato",
 			"request": {
 				"auth": {
 					"type": "bearer",
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQyNzA1MTUwLCJleHAiOjE2NDI3OTE1NTB9.F4m8Em7H-uOSG-DnvP17NnmGc2Dmd2AMCoCGmyK17FI",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"forma_pago\": \"EF\",\r\n    \"platos\": [\r\n        {\r\n            \"platoId\": 1,\r\n            \"cantidad\": 2\r\n        },\r\n        {\r\n            \"platoId\": 2,\r\n            \"cantidad\": 1\r\n        }\r\n    ]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3000/pedidos",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"pedidos"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Post nuevo plato",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQyNzEwMzcwLCJleHAiOjE2NDI3OTY3NzB9.GLHhutdxkTi-lvoaWVTH6VbaKAYFsDMM3EYXHEUcg7s",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQzMTQ1NTgxLCJleHAiOjE2NDMyMzE5ODF9.OnhofZmBvrgyL-vRKXP22CtifGsOcpf5diqo9psjIb0",
 							"type": "string"
 						}
 					]
@@ -205,52 +158,14 @@
 			"response": []
 		},
 		{
-			"name": "cambiar estado del pedido",
-			"request": {
-				"method": "PUT",
-				"header": []
-			},
-			"response": []
-		},
-		{
-			"name": "Desactivar plato",
+			"name": "Modificar un plato",
 			"request": {
 				"auth": {
 					"type": "bearer",
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNjMyMjYzMDg0LCJleHAiOjE2MzIzNDk0ODR9.Jz-2eKr0YL03R8PU-57ZiraST_o_vIoKSLAL1imSyzg",
-							"type": "string"
-						}
-					]
-				},
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3000/platos/8",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"platos",
-						"8"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Reemplazar plato",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQyNDUyMjc5LCJleHAiOjE2NDI1Mzg2Nzl9.slsK_LuJf3JtVP1PuX6wnAV81QWbdMP-67GeqA_lU8Y",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQzMTQ1NTgxLCJleHAiOjE2NDMyMzE5ODF9.OnhofZmBvrgyL-vRKXP22CtifGsOcpf5diqo9psjIb0",
 							"type": "string"
 						}
 					]
@@ -281,9 +196,124 @@
 			"response": []
 		},
 		{
-			"name": "Obtener todos los platos",
+			"name": "Desactivar un plato por id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQzMTQ1NTgxLCJleHAiOjE2NDMyMzE5ODF9.OnhofZmBvrgyL-vRKXP22CtifGsOcpf5diqo9psjIb0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/platos/12",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"platos",
+						"12"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener todos los pedidos",
 			"request": {
 				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/pedidos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"pedidos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener pedidos de usuario",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQyNzEwMzcwLCJleHAiOjE2NDI3OTY3NzB9.GLHhutdxkTi-lvoaWVTH6VbaKAYFsDMM3EYXHEUcg7s",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/pedidosUsuario",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"pedidosUsuario"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear nuevo pedido",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQzMTQ1NTgxLCJleHAiOjE2NDMyMzE5ODF9.OnhofZmBvrgyL-vRKXP22CtifGsOcpf5diqo9psjIb0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"forma_pago\": \"EF\",\r\n    \"platos\": [\r\n        {\r\n            \"platoId\": 2,\r\n            \"cantidad\": 2\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/pedidos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"pedidos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cambiar estado del pedido",
+			"request": {
+				"method": "PUT",
 				"header": []
 			},
 			"response": []
@@ -319,34 +349,6 @@
 			"response": []
 		},
 		{
-			"name": "Obtener Pedidos de usuario logeado",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQyNzEwMzcwLCJleHAiOjE2NDI3OTY3NzB9.GLHhutdxkTi-lvoaWVTH6VbaKAYFsDMM3EYXHEUcg7s",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:3000/pedidosUsuario",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"pedidosUsuario"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Eliminar pedido de usuario logeado",
 			"request": {
 				"auth": {
@@ -370,6 +372,74 @@
 					"path": [
 						"pedidosUsuario",
 						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modificar un pedido",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQzMTQ1NTgxLCJleHAiOjE2NDMyMzE5ODF9.OnhofZmBvrgyL-vRKXP22CtifGsOcpf5diqo9psjIb0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"precio_total\": 500,\r\n  \"forma_pago\": \"EF\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/pedidos/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"pedidos",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener todos los usuarios",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQzMTQ1NTgxLCJleHAiOjE2NDMyMzE5ODF9.OnhofZmBvrgyL-vRKXP22CtifGsOcpf5diqo9psjIb0",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/usuarios",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"usuarios"
 					]
 				}
 			},
