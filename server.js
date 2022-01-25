@@ -68,6 +68,20 @@ const signInValidation = async (req, res, next) => {
     
 }
 
+const verifyPlatoExists = async (req, res, next) =>{ 
+    const posiblePlato = await Platos.findOne({
+        where:{
+            nombre: req.body.nombre,
+        }
+    });
+    if(posiblePlato != null){
+        res.status(406);
+        res.json({ error: `El plato ya existe en la base` });
+    }else{
+        next();
+    }
+};
+
 const adminValidation = async (req, res, next)=>{
     try {
         const comprobation = await Usuarios.findOne({
@@ -150,13 +164,6 @@ server.post("/logIn",limiter, async(req, res) =>{
     }
 })
 
-//OBTENER TODOS LOS USUARIOS
-server.get("/usuarios",adminValidation, async (req, res) => {
-    const usuarios = await Usuarios.findAll()
-    res.json(usuarios);
-    res.status(200);
-});
-
 //OBTENER TODOS LOS PLATOS
 server.get("/platos/", async(req,res)=>{
     const platos = await Platos.findAll({where: {active: true}});
@@ -174,9 +181,10 @@ server.get("/platos/:id", async(req,res)=>{
 });
 
 //NUEVO PLATO
-server.post("/platos", adminValidation, async(req,res)=>{
+server.post("/platos", verifyPlatoExists, adminValidation, async(req,res)=>{
     try {
         const {nombre, precio, imagen} = req.body;
+        
         const nuevoPlato = await Platos.create({
             nombre,
             precio,
@@ -189,19 +197,23 @@ server.post("/platos", adminValidation, async(req,res)=>{
 })
 
 //DESACTIVAR UN PLATO
-server.delete("/platos/:id", async(req,res)=>{
+server.delete("/platos/:id", adminValidation, async(req,res)=>{
     idPlato = req.params.id;
     try {
-        await Platos.update({active: false}, {where:{id: idPlato}});
         const plato = await Platos.findOne({where: {id: idPlato}})
-        res.status(200).json(plato)
+        if(!plato){
+            res.status(404).json({error:"El plato no existe"})
+        }else{
+            await Platos.update({active: false}, {where:{id: idPlato}});
+            res.status(200).json(`Se desactivó el plato con id ${idPlato}`)
+        }
     } catch (error) {
         res.status(400).json({error: error.message})
     }
 });
 
 //MODIFICAR UN PLATO
-server.put("/platos/:id", async(req,res)=>{
+server.put("/platos/:id", adminValidation, async(req,res)=>{
     idPlato = req.params.id;
     const {nombre, precio, imagen} = req.body;
     try {
@@ -211,7 +223,6 @@ server.put("/platos/:id", async(req,res)=>{
     } catch (error) {
         res.status(400).json({error: error.message})
     }
-
 })
 
 //OBTENER TODOS LOS PEDIDOS
@@ -222,7 +233,7 @@ server.get("/pedidos", adminValidation, async (req, res) => {
         { model: Platos },
     ],
     });
-    res.json(pedidos);
+    res.status(200).json(pedidos);
 });
 
 //OBTENER PEDIDOS DE USUARIO LOGEADO
@@ -299,32 +310,42 @@ await Promise.all(
         }
     );
 }));
-
     res.status(201).json(nuevoPedido);
     } catch (error) {
         res.status(400).json({error: error.message})
     }
-    
 });
 
 //CAMBIAR ESTADO DEL PEDIDO
-server.put("/pedidos/:id/", adminValidation, async (req, res) => {
+server.put("/pedidos/cambiarEstado/:id/", adminValidation, async (req, res) => {
     const idPedido = req.params.id;
+    const posiblePedido= await Pedidos.findOne({
+        where: {
+            id:idPedido,
+        }
+    })
+
     nuevoEstado = estados.find((estado)=>{return estado == req.body.estado});
     try {
-        if(nuevoEstado){
-            await Pedidos.update({
-                estado: nuevoEstado,
-            },{
-                where: {id: idPedido}
-            })
+        if(!posiblePedido || posiblePedido == null){
+            res.status(404).json({
+                error: `No existe pedido con id ${idPedido}`
+            });
         }else{
-            throw new Error("El estado ingresado es invalido")
+            if(nuevoEstado){
+                await Pedidos.update({
+                    estado: nuevoEstado,
+                },{
+                    where: {id: idPedido}
+                })
+            }else{
+                throw new Error("El estado ingresado es invalido")
+            }
         }
-        res.status(200).json(await Pedidos.findOne({where: {id: idPedido} }));
     } catch (error) {
         res.status(400).json(error.message);
     }
+    res.status(201).json(await Pedidos.findOne({where: {id: idPedido} }));
 }) 
 
 //ELIMINAR PEDIDO
@@ -359,6 +380,35 @@ server.delete("/pedidos/:id",adminValidation, async (req,res) =>{
     res.json("El pedido fue eliminado");
 });
 
+//MODIFICAR PEDIDO
+server.put("/pedidos/:id", adminValidation, async (req,res) =>{
+    const idParam = req.params.id;
+    const {precio_total, forma_pago} = req.body;
+
+    const posiblePedido= await Pedidos.findOne({
+        where: {
+            id:idParam,
+        }
+    })
+
+    if(!posiblePedido){
+        res.status(404).json({
+            error: `No existe pedido con id ${idParam}`
+        });
+    }else{  
+        await Pedidos.update(
+            {
+                precio_total,
+                forma_pago,
+            },
+            {where:{
+                id: idParam,
+            }
+        });
+        res.status(201).json(`El pedido ${idParam} ha sido modificado.`);
+    }
+});
+
 //ELIMINAR PEDIDO DE USUARIO LOGEADO
 server.delete("/pedidosUsuario/:id", async (req,res) =>{
     const idPedido = req.params.id;
@@ -371,8 +421,7 @@ server.delete("/pedidosUsuario/:id", async (req,res) =>{
     })
 
     if(!posiblePedido || posiblePedido == null){
-        res.status(400)
-        res.json({
+        res.status(404).json({
             error: `No existe pedido con id ${idPedido} que sea del usuario logeado`
         });
     }else{  
@@ -388,11 +437,18 @@ server.delete("/pedidosUsuario/:id", async (req,res) =>{
                 id: idPedido,
             }
         }); 
+        
+        res.status(204).json("El pedido fue eliminado");
     } 
 
-    res.json("El pedido fue eliminado");
 });
 
+//OBTENER TODOS LOS USUARIOS
+server.get("/usuarios",adminValidation, async (req, res) => {
+    const usuarios = await Usuarios.findAll()
+    res.json(usuarios);
+    res.status(200);
+});
 
 //SERVER PORT LISTENER
 server.listen(PORT, () => {

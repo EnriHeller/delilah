@@ -1,0 +1,1292 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Documentacion del API de Delilah Resto",
+    "version": "1.0.0",
+    "title": "API REST - Delilah Resto",
+    "contact": {
+      "email": "enrique.heller@hotmail.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "tags": [
+    {
+      "name": "platos",
+      "description": "Endpoints relacionados con platos"
+    },
+    {
+      "name": "pedidos",
+      "description": "Endpoints relacionados con pedidos"
+    },
+    {
+      "name": "auth",
+      "description": "Endpoints relacionados autenticacion y registro"
+    },
+    {
+      "name": "usuarios",
+      "description": "Endpoint relacionado a los usuarios"
+    }
+  ],
+  "paths": {
+    "/platos": {
+      "get": {
+        "summary": "Obtener todos los platos",
+        "tags": [
+          "platos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Plato"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "sin autorización",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "UnauthorizedError": "No authorization token was found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear nuevo plato",
+        "tags": [
+          "platos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": {
+                    "type": "string",
+                    "example": "Sanguche de milanesa"
+                  },
+                  "precio": {
+                    "type": "number",
+                    "example": "500"
+                  },
+                  "imagen": {
+                    "type": "string",
+                    "example": "https://www.serargentino.com/public/images/2020/04/sanguche-de-milanesa-773x458.jpeg"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Plato"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "notNull Violation, platos.nombre cannot be null"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin permisos de administrador",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "Acceso denegado"
+                  }
+                }
+              }
+            }
+          },
+          "406": {
+            "description": "El plato ya existe",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "El plato ya existe en la base"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/platos/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "id de plato",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "summary": "Obtener un plato por id",
+        "tags": [
+          "platos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Plato"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No existe un plato con el id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "No existe el plato con el id 6"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin autorización",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "UnauthorizedError": "No authorization token was found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "id de plato",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "summary": "Modificar un plato",
+        "tags": [
+          "platos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "precio": {
+                    "type": "number",
+                    "example": "500"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Plato"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin autorización",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "UnauthorizedError": "No authorization token was found"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos de administrador",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "Acceso denegado"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "id del plato",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "summary": "Desactivar un plato por id",
+        "tags": [
+          "platos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Se desactivó el plato con id 1"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin autorización",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "UnauthorizedError": "No authorization token was found"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos de administrador",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "Acceso denegado"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "El plato no existe",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "No existe plato con id 15"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidos": {
+      "get": {
+        "summary": "Obtener todos los pedidos",
+        "tags": [
+          "pedidos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "id del pedido",
+                        "example": 1
+                      },
+                      "precio_total": {
+                        "type": "number",
+                        "example": "900"
+                      },
+                      "estado": {
+                        "type": "string",
+                        "example": "NUEVO"
+                      },
+                      "forma_pago": {
+                        "type": "string",
+                        "example": "EF"
+                      },
+                      "usuarios_id": {
+                        "type": "integer",
+                        "example": "1"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "example": "2022-01-17T22:27:34.000Z"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "example": "2022-01-17T22:27:34.000Z"
+                      },
+                      "usuario": {
+                        "$ref": "#/components/schemas/Usuario"
+                      },
+                      "platos": {
+                        "type": "array",
+                        "items": {
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "precio_total": {
+                              "type": "number",
+                              "example": 900
+                            },
+                            "estado": {
+                              "type": "string",
+                              "example": "NUEVO"
+                            },
+                            "forma_pago": {
+                              "type": "string",
+                              "example": "EF"
+                            },
+                            "pedidos_has_platos": {
+                              "$ref": "#/components/schemas/PedidoHasPlatos"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin autorización",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "UnauthorizedError": "No authorization token was found"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos de administrador",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "Acceso denegado"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear nuevo pedido",
+        "tags": [
+          "pedidos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "forma_pago": {
+                    "type": "string",
+                    "example": "EF"
+                  },
+                  "platos": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "platoId": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "cantidad": {
+                          "type": "integer",
+                          "example": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pedido"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "notNull Violation, pedidos.forma_pago cannot be null"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin autorización",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "UnauthorizedError": "No authorization token was found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidos/{id}": {
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "id del plato",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "summary": "Modificar pedido",
+        "tags": [
+          "pedidos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "precio_total": {
+                    "type": "number",
+                    "example": "500"
+                  },
+                  "forma_pago": {
+                    "type": "string",
+                    "example": "EF"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "El pedido 1 se ha modificado."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "Cannot read properties of null (reading 'precio')"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "sin autorización",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "UnauthorizedError": "No authorization token was found"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos de administrador",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "Acceso denegado"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "El pedido no existe",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "No existe pedido con id 100"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "id del plato",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "summary": "Eliminar pedido del usuario logeado",
+        "tags": [
+          "pedidos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "El pedido fue eliminado."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin autorización",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "UnauthorizedError": "No authorization token was found"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos de administrador",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "Acceso denegado"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "El pedido no existe",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "No existe pedido con id {idPedido} para el usuario actual"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidos/cambiarEstado/{id}": {
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "id de plato",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "summary": "Cambiar estado del pedido",
+        "tags": [
+          "pedidos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "estado": {
+                    "type": "string",
+                    "example": "CANCELADO"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "precio_total": {
+                      "type": "number",
+                      "example": 400
+                    },
+                    "estado": {
+                      "type": "string",
+                      "example": "CANCELADO"
+                    },
+                    "forma_pago": {
+                      "type": "string",
+                      "example": "EF"
+                    },
+                    "usuarios_id": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "example": "2022-01-13T09:54:40.709Z"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "example": "2022-01-13T09:54:40.709Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "notNull Violation"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin autorización",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "UnauthorizedError": "No authorization token was found"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos de administrador",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "Acceso denegado"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "El pedido no existe",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "No existe pedido con id 6"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pedidosUsuario": {
+      "get": {
+        "summary": "Obtener todos los pedidos del usuario logeado",
+        "tags": [
+          "pedidos"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "id de pedido",
+                        "example": 1
+                      },
+                      "precio_total": {
+                        "type": "number",
+                        "example": "105.5"
+                      },
+                      "estado": {
+                        "type": "string",
+                        "example": "NUEVO"
+                      },
+                      "forma_pago": {
+                        "type": "string",
+                        "example": "EF"
+                      },
+                      "usuarios_id": {
+                        "type": "integer",
+                        "example": "1"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "example": "2022-01-17T22:27:34.000Z"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "example": "2022-01-17T22:27:34.000Z"
+                      },
+                      "usuario": {
+                        "$ref": "#/components/schemas/Usuario"
+                      },
+                      "platos": {
+                        "type": "array",
+                        "items": {
+                          "properties": {
+                            "id": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "precio_total": {
+                              "type": "number",
+                              "example": 105.5
+                            },
+                            "estado": {
+                              "type": "string",
+                              "example": "NUEVO"
+                            },
+                            "forma_pago": {
+                              "type": "string",
+                              "example": "EF"
+                            },
+                            "pedidos_has_platos": {
+                              "$ref": "#/components/schemas/PedidoHasPlatos"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin autorización",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "UnauthorizedError": "No authorization token was found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Logear usuario",
+        "description": "log in",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "correo": {
+                    "type": "string",
+                    "description": "email",
+                    "example": "enrique@gmail.com"
+                  },
+                  "contrasena": {
+                    "type": "string",
+                    "example": "enri2022"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjQzMTQ1NTgxLCJleHAiOjE2NDMyMzE5ODF9.OnhofZmBvrgyL-vRKXP22CtifGsOcpf5diqo9psjIb0"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "sin autorización",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "Correo y/o contraseña invalido"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error: Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "Error, intente nuevamente mas tarde..."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signIn": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Registrar nuevo usuario",
+        "description": "registro de usuario",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nombre": {
+                    "type": "string",
+                    "description": "nombre",
+                    "example": "enrique"
+                  },
+                  "usuario": {
+                    "type": "string",
+                    "example": "enriqueH"
+                  },
+                  "correo": {
+                    "type": "string",
+                    "example": "enriqueh@google.com"
+                  },
+                  "telefono": {
+                    "type": "string",
+                    "example": "+54 123123123123"
+                  },
+                  "direccion": {
+                    "type": "string",
+                    "example": "Calle siempre viva 123"
+                  },
+                  "contrasena": {
+                    "type": "string",
+                    "example": "enrique"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "Usuario enriqueH creado"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "notNull Violation, usuarios.usuario cannot be null"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Correo/Usuario ya existe en la base",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "El correo electronico / usuario ingresado no se encuentra disponible"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuarios": {
+      "get": {
+        "summary": "Obtener todos los usuarios",
+        "tags": [
+          "usuarios"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Peticion ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Usuario"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Sin permisos de administrador",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": {
+                    "error": "Acceso denegado"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Plato": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "imagen": {
+            "type": "string",
+            "example": "https://www.serargentino.com/public/images/2020/04/sanguche-de-milanesa-773x458.jpeg"
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Sanguche de Milanesa"
+          },
+          "precio": {
+            "type": "number",
+            "example": 500
+          }
+        }
+      },
+      "Pedido": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "precio_total": {
+            "type": "number",
+            "example": 400
+          },
+          "estado": {
+            "type": "string",
+            "example": "NUEVO"
+          },
+          "forma_pago": {
+            "type": "string",
+            "example": "EF"
+          },
+          "usuarios_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2022-01-13T09:54:40.709Z"
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2022-01-13T09:54:40.709Z"
+          }
+        }
+      },
+      "Usuario": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Enrique Heller"
+          },
+          "correo": {
+            "type": "string",
+            "example": "enrique@gmail.com"
+          }
+        }
+      },
+      "PedidoHasPlatos": {
+        "type": "object",
+        "properties": {
+          "cantidad": {
+            "type": "integer",
+            "example": 1
+          },
+          "pedido_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "plato_id": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
