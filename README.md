@@ -84,5 +84,5 @@ UPDATE `proyecto-delilah-resto`.`usuarios` SET `esAdmin` = '1' WHERE (`id` = '<i
 ser abierto mediante el software **Postman** y ejecutar las
 peticiones HTPP sin necesidad de tener un entorno desarrollado para ello.
 
-* Para visualizar los archivos *spec.yaml* y *spec.json* desde Swagger Editor, es necesario 
+* Para visualizar los endpoints de *spec.yaml* y *spec.json* desde Swagger Editor, es necesario 
  haber levantado el servidor con el comando `npm run dev`
