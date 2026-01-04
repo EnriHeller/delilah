@@ -1,58 +1,33 @@
-# Delilah Resto -  REST API
+# Delilah Resto - REST API
 
-En este proyecto, se desarrolló el backend necesario para un sistema 
-de pedidos online de un restaurante. 
-En el se encuentra definida una REST API la cual permite realizar 
-altas, bajas, modificaciones y obtención de información a una
-base de datos que interrelaciona usuarios 
-(clientes o administradores), platos y pedidos. 
-El desarrollo del mismo parte del objetivo de que sea posible una puesta 
-en producción utilizando web services.   
+This project develops the backend for an online ordering system for a restaurant. It defines a REST API that allows creating, deleting, modifying, and retrieving information from a database that interrelates users (customers or administrators), dishes, and orders. The development aims for production deployment using web services.
 
----
-## Prerequisitos
----
-Para un montaje del proyecto en el que se permita levantar
-el servidor a nivel local, se tenga acceso directo a la base 
-de datos y sea posible la ejecución de los correspondientes 
-endpoints para interactuar sobre la misma mediante peticiones HTPP, 
-se deberá contar con los siguientes softwares:
+## Prerequisites
 
-* Node JS
-* Git Bash
-* Xampp
-* MySQL Workbench (versión 8.0.26)
+To set up the project for local server startup, direct database access, and execution of HTTP endpoints, the following software is required:
 
----
-## Instalación
----
+- Node.js
+- Git Bash
+- XAMPP
+- MySQL Workbench (version 8.0.26)
 
-Para establecer la conexión a la base de datos, inicializar **Xampp** y encender el módulo de MySQL.
-Luego, inicializar **MySQL Workbench**, establecer una 
-nueva conexión y disponer los siguientes parámetros:
+## Installation
+
+To establish the database connection, start **XAMPP** and enable the MySQL module. Then, start **MySQL Workbench**, create a new connection with the following parameters:
 
 ```
 Connection Name: XAMPP MYSQL
-Connextion Method: Standard (TCP/IP)
+Connection Method: Standard (TCP/IP)
 Hostname: 127.0.0.1
 Port: 3306
-Username: root 
+Username: root
 ```
-Habiendolos confirmado, presionar **OK** e ingresar a la conexión dispuesta.
-Una vez echo esto, abrir el archivo *sqlScript.sql* y ejecutar sus 
-sentencias. Se creará el schema 
-*proyecto-delilah-resto* (para su visualización, se deberá actualizar la lista de schemas). 
-donde se alojarán las tablas correspondientes
-a los tipos de datos con los que se va a interactuar.
 
-Para levantar el servidor a nivel de local, será necesario abrir la carpeta
-del proyecto en la terminal de Git Bash. Luego, se deberá ejecutar `npm install` 
-para instalar las dependencias necesarias, finalmente ejecutar `npm run dev`
-para levantar el servidor y conectarlo a la base de datos.
+After confirming, press **OK** and enter the connection. Open the file *sqlScript.sql* and execute its statements. This will create the schema *proyecto-delilah-resto* (refresh the schema list to view it), where the tables for the data types will be stored.
 
+To start the server locally, open the project folder in Git Bash terminal. Run `npm install` to install dependencies, then `npm run dev` to start the server and connect to the database.
 
-Si los pasos se realizaron correctamente,
-se debería visualizar el siguiente mensaje por consola:
+If successful, you should see the following message in the console:
 
 ```
 Servidor se ha iniciado en puerto 3000
@@ -60,29 +35,51 @@ Executing (default): SELECT 1+1 AS result
 Conexion exitosa con la db
 ```
 
----
-## Observaciones
----
+## Repository Structure
 
-* En el caso que se desee correr el servidor en un entorno remoto o
-distinto al definido localmente en este proyecto, en el archivo *.env* se definen las variables de entorno, las cuales pueden modificarse
-sin inconvenientes. Tener en cuenta que también se deberá establecer la conexión en MySQL Workbench.
+- **`server.js`**: Main server file.
+- **`config/db.js`**: Database configuration.
+- **`models/`**: Data models.
+  - `index.js`: Model index.
+  - `pedidos.js`: Orders model.
+  - `pedidosHasPlatos.js`: Order-dish relationship.
+  - `platos.js`: Dishes model.
+  - `usuarios.js`: Users model.
+- **`sqlScript.sql`**: Database schema script.
+- **`spec.json`** and **`spec.yaml`**: OpenAPI specifications.
+- **`delilah-resto.postman_collection`**: Postman collection for testing endpoints.
+- **`.env`**: Environment variables (copy from `.env.example`).
 
-* Por seguridad, todos los usuarios creados serán no administradores. 
-Para que un usuario sea administrador, ejecutar la siguiente sentencia
-en MySQL Workbench, alojando el ID de dicho usuario:
+## Technologies Used
 
-```
-UPDATE `proyecto-delilah-resto`.`usuarios` SET `esAdmin` = '1' WHERE (`id` = '<id_del_usuario>');
+- **Node.js**: Runtime environment.
+- **Express.js**: Web framework for the API.
+- **MySQL**: Database.
+- **Sequelize**: ORM for database interactions.
+- **JWT**: Authentication (assumed).
+- **Postman**: API testing.
+- **Swagger**: API documentation.
 
--- ---------------------------------------------------------------------
--- Ejemplo si el ID es 1:
--- UPDATE `proyecto-delilah-resto`.`usuarios` SET `esAdmin` = '1' WHERE (`id` = '1');
-```
+## Usage
 
-* Se incluye el archivo *delilah-resto.postman_collection* para
-ser abierto mediante el software **Postman** y ejecutar las
-peticiones HTPP sin necesidad de tener un entorno desarrollado para ello.
+- Use Postman to test endpoints via `delilah-resto.postman_collection`.
+- View API docs in Swagger after starting the server.
 
-* Para visualizar los endpoints de *spec.yaml* y *spec.json* desde Swagger Editor, es necesario 
- haber levantado el servidor con el comando `npm run dev`
+## Notes
+
+- For remote or different environments, modify variables in `.env`.
+- All created users are non-admin by default. To make a user admin, run in MySQL Workbench:
+
+  ```
+  UPDATE `proyecto-delilah-resto`.`usuarios` SET `esAdmin` = '1' WHERE (`id` = '<user_id>');
+  ```
+
+- Ensure the server is running (`npm run dev`) to access Swagger docs.
+
+## Author
+
+- **Enrique Heller** - [EnriHeller](https://github.com/EnriHeller)
+
+## License
+
+This repository is for educational purposes. Use and modify freely, but cite the source.
